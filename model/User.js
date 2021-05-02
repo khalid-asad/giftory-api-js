@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
         default: false
+    },
+    resetPasswordLink: {
+        type: String,
+        default: ''
     }
 }, { timestamps: true });
 

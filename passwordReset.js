@@ -1,20 +1,20 @@
-const accountVerification = (link) => {
+const passwordReset = (link) => {
 return `<tr>
- <td><h3>Account Verification</h3><p>Hi there,</p>
+ <td><h3>Password Reset</h3><p>Hi there,</p>
  <br>
- <p>Thank you for choosing giftstory! Please confirm your email address by clicking the link below. We'll communicate important updates with you from time to time via email, so it's essential that we have an up-to-date email address on file.</p>
+ <p>Please click the link below to reset your password.</p>
  <br>
  </td></tr>
 <tr>
                 <td align="left" valign="top"><table width="275" style="width:275px;background-color:#439b73;border-radius:4px" border="0" cellspacing="0" cellpadding="0" align="center">
                   <tbody><tr>
-                    <td class="m_5066463330296305453em_white" height="42" align="center" valign="middle" style="font-family:Arial,sans-serif;font-size:16px;color:#ffffff;font-weight:bold;height:42px"><a href="${link}" style="text-decoration:none;color:#ffffff;line-height:42px;display:block" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${link}&amp;source=gmail&amp;ust=1620008746804000&amp;usg=AFQjCNHC2YDvDYvQMlGBOzawNRLeAhD0qg">Verify your email address</a>
+                    <td class="m_5066463330296305453em_white" height="42" align="center" valign="middle" style="font-family:Arial,sans-serif;font-size:16px;color:#ffffff;font-weight:bold;height:42px"><a href="${link}" style="text-decoration:none;color:#ffffff;line-height:42px;display:block" target="_blank" data-saferedirecturl="https://www.google.com/url?q=${link}&amp;source=gmail&amp;ust=1620008746804000&amp;usg=AFQjCNHC2YDvDYvQMlGBOzawNRLeAhD0qg">Reset your password</a>
                     </td>
                     </tr>
                 </tbody></table>
             <br>
             <br>
-            <u></u>If you did not sign up for a Giftstory account, please disregard this email.
+            <u></u>If you did not request to reset your password, please ignore this message. 
             
             <br>
             <br>
@@ -92,4 +92,4 @@ return `<tr>
         </tr>
     </tbody></table>`
 };
-module.exports.accountVerification = accountVerification;
+module.exports.passwordReset = passwordReset;
