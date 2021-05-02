@@ -23,4 +23,4 @@ app.use(express.json());
 app.use('/api/user', authRoute);
 app.use('/api/contacts', contactsRoute);
 
-app.listen(8000, () => console.log('[Giftstory] Server initialized.'));
+app.listen(process.env.PORT || 8000, () => console.log('[Giftstory] Server initialized.'));

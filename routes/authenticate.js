@@ -122,7 +122,7 @@ router.post('/login', async (req, res) => {
     const inactiveUser = await User.findOne({ email: req.body.email, isActivated: false });
     if(inactiveUser) return sendActivationEmail(user, res);
 
-    const jwtToken = jwt.sign({ _id: user.id }, process.env.JWT_TOKEN_SECRET);
+    const jwtToken = jwt.sign({ _id: user.id }, process.env.JWT_TOKEN_SECRET, { expiresIn: '1d' });
 
     console.log('[Giftstory] 200 on /login');
     return res.header(process.env.JWT_TOKEN_HEADER, jwtToken).status(200).send('Successfully logged in!');
