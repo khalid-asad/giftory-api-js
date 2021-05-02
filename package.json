@@ -1,5 +1,5 @@
 {
-  "name": "giftory-api",
+  "name": "giftstory-api",
   "version": "1.0.0",
   "description": "Backend APIs for Giftory",
   "main": "index.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/khalid-asad/giftory-api-js.git"
+    "url": "git+https://github.com/khalid-asad/giftstory-api-js.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/khalid-asad/giftory-api-js/issues"
+    "url": "https://github.com/khalid-asad/giftstory-api-js/issues"
   },
-  "homepage": "https://github.com/khalid-asad/giftory-api-js#readme",
+  "homepage": "https://github.com/khalid-asad/giftstory-api-js#readme",
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "bcryptjs": "^2.4.3",
