@@ -13,7 +13,7 @@ const contactsRoute = require('./routes/contacts');
 mongoose.connect(
     process.env.DB_CONNECT, 
     { useNewUrlParser: true, useUnifiedTopology: true },
-    () => console.log('[Giftory] Connected to database.')
+    () => console.log('[Giftstory] Connected to database.')
 );
 
 // Middlewares
@@ -23,4 +23,4 @@ app.use(express.json());
 app.use('/api/user', authRoute);
 app.use('/api/contacts', contactsRoute);
 
-app.listen(8000, () => console.log('[Giftory] Server initialized.'));
+app.listen(8000, () => console.log('[Giftstory] Server initialized.'));
