@@ -22,14 +22,10 @@ const sendActivationEmail = (user, res) => {
     mg.messages().send(data, function (error, body) {
         if(error) {
             console.log('[Giftstory] Failed to send activation e-mail.');
-            return res.json({
-                error: error.message
-            });
+            return res.status(400).json({ error: error.message });
         }
         console.log('[Giftstory] Successfully sent activation e-mail.');
-        return res.json({
-            message: 'Activation e-mail has been sent. Please activate your account with the link in the email before logging in.'
-        })
+        return res.status(200).json({ message: 'Activation e-mail has been sent. Please activate your account with the link in the email before logging in.' })
     });
 };
 
@@ -49,24 +45,20 @@ const sendResetPasswordEmail = (user, res) => {
         mg.messages().send(data, function (error, body) {
             if(error) {
                 console.log('[Giftstory] Failed to send password reset e-mail.');
-                return res.json({
-                    error: error.message
-                });
+                return res.status(400).json({ error: error.message });
             }
             console.log('[Giftstory] Successfully sent password reset e-mail.');
-            return res.json({
-                message: 'Password reset e-mail has been sent. Please check the spam folder for any e-mails.'
-            })
+            return res.status(200).json({ message: 'Password reset e-mail has been sent. Please check the spam folder for any e-mails.' })
         });
     });
 };
 
 router.post('/register', async (req, res) => {
     const { error } = validateRegistration(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
+    if(error) return res.status(400).json({ error: error.details[0].message });
 
     const emailExists = await User.findOne({ email: req.body.email });
-    if(emailExists) return res.status(400).send('Email already exists!');
+    if(emailExists) return res.status(400).json({ error: 'Email already exists!' });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -84,40 +76,40 @@ router.post('/register', async (req, res) => {
         console.log('[Giftstory] User ' + user.id + ' created.')
         sendActivationEmail(user, res);
     } catch (err) {
-        res.status(400).send(err);
         console.log('[Giftstory] 400 on /register');
+        return res.status(400).json({ error: err.message });
     }
 });
 
 router.get('/activate', async (req, res) => {
     const token = req.query.token;
-    if (!token) return res.json({ error: "Something went wrong." });
+    if (!token) return res.status(400).json({ error: "Something went wrong." });
     jwt.verify(token, process.env.JWT_TOKEN_SECRET, async function (err, decodedToken) {
         if (err) return res.status(400).json({ error: 'Incorrect or expired link.' });
         const { _id } = decodedToken;
 
         const foundUser = await User.findOne({ _id: _id, isActivated: true });
-        if (foundUser) return res.status(400).send('Account is already activated!');
+        if (foundUser) return res.status(400).json({ error: 'Account is already activated!' });
 
         const updateResponse = await User.updateOne({ _id: _id }, { isActivated: true });
 
         if (updateResponse.nModified > 0) {
-            return res.status(200).send('Account was successfully activated.');
+            return res.status(200).json({ message: 'Account was successfully activated.' });
         } else {
-            return res.status(400).send('Sorry, something went wrong with the activation.');
+            return res.status(400).json({ error: 'Sorry, something went wrong with the activation.' });
         }
     });
 });
 
 router.post('/login', async (req, res) => {
     const { error } = validateAuthentication(req.body);
-    if(error) return res.status(400).send(error.details[0].message);
+    if(error) return res.status(400).json({ error: error.details[0].message });
 
     const user = await User.findOne({ email: req.body.email });
-    if(!user) return res.status(400).send('Email is not registered.');
+    if(!user) return res.status(400).json({ error: 'Email is not registered.' });
 
     const isValidPassword = await bcrypt.compare(req.body.password, user.password);
-    if(!isValidPassword) return res.status(400).send('Email or password is incorrect.');
+    if(!isValidPassword) return res.status(400).json({ error: 'Email or password is incorrect.' });
 
     const inactiveUser = await User.findOne({ email: req.body.email, isActivated: false });
     if(inactiveUser) return sendActivationEmail(user, res);
@@ -125,36 +117,36 @@ router.post('/login', async (req, res) => {
     const jwtToken = jwt.sign({ _id: user.id }, process.env.JWT_TOKEN_SECRET, { expiresIn: '1d' });
 
     console.log('[Giftstory] 200 on /login');
-    return res.header(process.env.JWT_TOKEN_HEADER, jwtToken).status(200).send('Successfully logged in!');
+    return res.header(process.env.JWT_TOKEN_HEADER, jwtToken).status(200).json({ message: 'Successfully logged in!' });
 });
 
 router.put('/forgotPassword', async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
-    if(!user) return res.status(400).send('Email is not registered.');
+    if(!user) return res.status(400).json({ error: 'Email is not registered.' });
     sendResetPasswordEmail(user, res);
 });
 
 router.put('/resetPassword', async (req, res) => {
     const { resetPasswordLink, password } = req.body;
-    if(resetPasswordLink == '') return res.status(400).send('Invalid reset password link or expired link.');
+    if(resetPasswordLink == '') return res.status(400).json({ error: 'Invalid reset password link or expired link.' });
 
     jwt.verify(resetPasswordLink, process.env.JWT_RESET_PASSWORD_TOKEN_SECRET, async function (err, decodedToken) {
-        if (err || !decodedToken) return res.status(400).send('Invalid reset password link or expired link.');
+        if (err || !decodedToken) return res.status(400).json({ error: 'Invalid reset password link or expired link.' });
 
         const user = await User.findOne({ resetPasswordLink: resetPasswordLink });
-        if (!user) return res.status(400).send('Invalid reset password link or expired link.');
+        if (!user) return res.status(400).json({ error: 'Invalid reset password link or expired link.' });
 
         const { error } = validateResetPassword(req.body);
-        if (error) return res.status(400).send(error.details[0].message);
+        if (error) return res.status(400).json({ error: error.details[0].message });
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
         const updateResponse = await User.updateOne({ resetPasswordLink: resetPasswordLink }, { password: hashedPassword, resetPasswordLink: '' });
 
         if (updateResponse.nModified > 0) {
-            return res.status(200).send('Password successfully reset.');
+            return res.status(200).json({ message: 'Password successfully reset.' });
         } else {
-            return res.status(400).send('Sorry, something went wrong with the password reset.');
+            return res.status(400).json({ error: 'Sorry, something went wrong with the password reset.' });
         }
     });
 });
