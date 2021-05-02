@@ -5,7 +5,7 @@ const User = require('../model/User');
 router.get('/', authorize, (req, res) => {
     // find logged in user info
     // const user = User.findById({ id: req.user._id });
-    res.json({
+    res.status(200).json({
         contacts: {
             name: "John Doe",
             birthday: '1994-10-22',
