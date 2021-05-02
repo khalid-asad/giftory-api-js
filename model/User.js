@@ -30,10 +30,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         trim: true
     },
-    date: {
-        type: Date,
-        default: Date.now
+    isActivated: {
+        type: Boolean,
+        required: true,
+        default: false
     }
-});
+}, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

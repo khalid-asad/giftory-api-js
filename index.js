@@ -4,11 +4,11 @@ const app = express();
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+dotenv.config();
+
 // Import Routes
 const authRoute = require('./routes/authenticate');
 const contactsRoute = require('./routes/contacts');
-
-dotenv.config();
 
 mongoose.connect(
     process.env.DB_CONNECT, 
