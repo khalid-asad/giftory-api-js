@@ -36,8 +36,10 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     resetPasswordLink: {
-        type: String,
-        default: ''
+        type: String
+    },
+    resetPasswordExpiry: {
+        type: Date
     }
 }, { timestamps: true });
 
