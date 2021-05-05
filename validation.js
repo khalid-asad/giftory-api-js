@@ -21,8 +21,8 @@ const validateAuthentication = (data) => {
 
 const validateResetPassword = (data) => {
     const schema = Joi.object({
-        resetPasswordLink: Joi.string().min(10).required(),
-        password: Joi.string().min(8).required()
+        password: Joi.string().min(8).required(),
+        password2: Joi.string().min(8).required().valid(Joi.ref('password'))
     });
     return schema.validate(data);
 }

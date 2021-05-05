@@ -31,7 +31,7 @@ const sendActivationEmail = (user, res) => {
 
 const sendResetPasswordEmail = (user, res) => {
     const jwtToken = jwt.sign({ _id: user.id }, process.env.JWT_RESET_PASSWORD_TOKEN_SECRET, {expiresIn: '20m'});
-    const link = process.env.BASE_URL + "api/user/resetPassword?token=" + jwtToken;
+    const link = process.env.BASE_URL + "api/user/resetPassword/" + jwtToken;
 
     const data = {
         from: "noreply@giftstory.com",
@@ -40,7 +40,7 @@ const sendResetPasswordEmail = (user, res) => {
         html: passwordReset(link)
     };
 
-    return User.updateOne({ _id: user.id }, { resetPasswordLink: jwtToken }, function (err, success) {
+    return User.updateOne({ _id: user.id }, { resetPasswordLink: jwtToken, resetPasswordExpiry: Date.now() + 3600000 }, function (err, success) {
         if(err) return res.status(400).json({ error: "Reset password link is invalid." });
         mg.messages().send(data, function (error, body) {
             if(error) {
@@ -126,9 +126,17 @@ router.put('/forgotPassword', async (req, res) => {
     sendResetPasswordEmail(user, res);
 });
 
-router.put('/resetPassword', async (req, res) => {
-    const { resetPasswordLink, password } = req.body;
-    if(resetPasswordLink == '') return res.status(400).json({ error: 'Invalid reset password link or expired link.' });
+router.get('/resetPassword/:token', function (req, res) {
+    User.findOne({ resetPasswordLink: req.params.token, resetPasswordExpiry: { $gt: Date.now() } }, function (err, user) {
+        if (!user) return res.status(400).json({ error: 'Password reset token is invalid or has expired.' });
+        res.render('resetPassword', { email: user.email });
+    });
+});
+
+router.post('/resetPassword/:token', async (req, res) => {
+    const resetPasswordLink = req.params.token
+    const { password, password2 } = req.body;
+    if(resetPasswordLink == '' || resetPasswordLink == undefined) return res.status(400).json({ error: 'Invalid reset password link or expired link.' });
 
     jwt.verify(resetPasswordLink, process.env.JWT_RESET_PASSWORD_TOKEN_SECRET, async function (err, decodedToken) {
         if (err || !decodedToken) return res.status(400).json({ error: 'Invalid reset password link or expired link.' });
@@ -141,7 +149,7 @@ router.put('/resetPassword', async (req, res) => {
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
-        const updateResponse = await User.updateOne({ resetPasswordLink: resetPasswordLink }, { password: hashedPassword, resetPasswordLink: '' });
+        const updateResponse = await User.updateOne({ resetPasswordLink: resetPasswordLink }, { password: hashedPassword, resetPasswordLink: undefined, resetPasswordExpiry: undefined });
 
         if (updateResponse.nModified > 0) {
             return res.status(200).json({ message: 'Password successfully reset.' });
